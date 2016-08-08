@@ -1,0 +1,121 @@
+html, body {
+	margin: 0px;
+	padding: 0px;
+	border: 0px;
+	font-family: sans-serif;
+ }
+
+#container {
+	max-width: 900px;
+	margin: auto; 
+	padding: 0px;
+}
+
+
+#title {
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	height: 50px;
+	float: left;
+	text-align: center;
+	background-color: green;
+}
+
+#main {
+	margin: 0px;
+	padding: 60px 0px 0px 0px; /* top right bottom left */
+}
+
+.cluespace {
+	width: 18%;
+	text-align: center;
+}
+
+.cluespace div {
+	text-align: left;
+}
+
+#redclues {
+	float: left;
+	padding: 0% 0.5% 5px 0.5%;
+	background-color: red;
+}
+
+#blueclues {
+	float: right;
+	padding: 0% 0.5% 5px 0.5%;
+	background-color: blue;
+}
+
+.score {
+	text-align: left;
+}
+
+.even {
+	background-color: #bbbbbb;
+}
+
+.odd {
+	background-color: white;
+}
+
+input[type="checkbox"] {
+	float: right;
+}
+
+#wordgrid {
+	margin: auto;
+	width: 60%;
+}
+
+table {
+	width: 100%;
+	margin: auto;
+}
+
+td {
+	margin: auto;
+/*	width: 50%; */
+	padding: 2px;
+	border: 2px solid black;
+}
+
+td.Red {
+	background-color: red;
+	color: red;
+}
+
+td.hiddenRed {
+	background-color: #ff9999;
+}
+
+td.Blue {
+	background-color: blue;
+	color: blue;
+}
+
+td.hiddenBlue {
+	background-color: #9999ff;
+}
+
+td.Neutral {
+	color: white;
+}
+
+td.Assassin {
+	background-color: black;
+}
+
+td.hiddenAssassin {
+	background-color: #666666;
+	color: white;
+}
+
+td.Red:hover, td.Blue:hover, td.Assassin:hover {
+	color: white;
+}
+
+td.Neutral:hover {
+	color: #aaaaaa;
+}

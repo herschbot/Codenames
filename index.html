@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Codenames</title>
+	<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+	<div id="container">
+		<h1 id="title">Codenames</h1>
+		<div id="main">
+			<div id="redclues" class="cluespace">
+				<h2>Red Team</h2>
+				<h3 class="score"></h3>
+				<h3>Clues</h3>
+				<div class="odd">
+					Grimy <input type="checkbox" name="r11"><input type="checkbox" name="r12">
+				</div>
+				<div class="even">
+					Clean <input type="checkbox" name="r21"><input type="checkbox" name="r22"><input type="checkbox" name="r23">
+				</div>
+			</div>
+			<div id="blueclues" class="cluespace">
+				<h2>Blue Team</h2>
+				<h3 class="score"></h3>
+				<h3>Clues</h3>
+				<div class="odd">
+					Grimy <input type="checkbox" name="b11"><input type="checkbox" name="b12">
+				</div>
+				<div class="even">
+					Clean <input type="checkbox" name="b21"><input type="checkbox" name="b22"><input type="checkbox" name="b23">
+				</div>
+				<div class="odd">
+					Another <input type="checkbox" name="b11"><input type="checkbox" name="b12">
+				</div>
+			</div>
+			<div id="wordgrid">
+				<table></table>
+			</div>
+		</div>
+	</div>
+	<script src="https://code.jquery.com/jquery-3.0.0.min.js" integrity="sha256-JmvOoLtYsmqlsWxa7mDSLMwa6dZ9rrIdtrrVYRnDRH0="   crossorigin="anonymous"></script>
+  	<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
+	<script type="text/javascript" src="js/index.js"></script>
+
+	<script id="board-template" type="text/x-handlebars-template">
+		<tr>{{#each words}}<td class="{{color}}">{{word}}</td>{{/each}}</tr>
+	</script>
+
+<!--	<script id="score-template" type="text/x-handlebars-template">Agents Left to Find: {{score}}</script> -->
+
+</body>
+</html>
