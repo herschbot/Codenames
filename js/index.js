@@ -1,346 +1,28 @@
 //Model
 var Model = {
-	allWords: [
-		"africa",
-		"agent",
-		"air",
-		"alien",
-		"alps",
-		"amazon",
-		"ambulance",
-		"angel",
-		"antarctica",
-		"apple",
-		"arm",
-		"aztec",
-		"back",
-		"ball",
-		"band",
-		"bank",
-		"bar",
-		"bark",
-		"battery",
-		"beach",
-		"bear",
-		"beat",
-		"bed",
-		"beijing",
-		"belt",
-		"berlin",
-		"bermuda",
-		"berry",
-		"block",
-		"board",
-		"bolt",
-		"bond",
-		"boom",
-		"boot",
-		"bow",
-		"box",
-		"bridge",
-		"buffalo",
-		"bug",
-		"bugle",
-		"button",
-		"calf",
-		"canada",
-		"capital",
-		"card",
-		"carrot",
-		"casino",
-		"cell",
-		"center",
-		"chair",
-		"change",
-		"check",
-		"chick",
-		"china",
-		"chocolate",
-		"church",
-		"circle",
-		"cloak",
-		"club",
-		"cold",
-		"compound",
-		"conductor",
-		"copper",
-		"cotton",
-		"court",
-		"cover",
-		"crane",
-		"crash",
-		"cricket",
-		"cross",
-		"dance",
-		"date",
-		"day",
-		"death",
-		"deck",
-		"degree",
-		"diamond",
-		"dice",
-		"dinosaur",
-		"disease",
-		"doctor",
-		"dog",
-		"draft",
-		"dress",
-		"drill",
-		"drop",
-		"dwarf",
-		"eagle",
-		"egypt",
-		"embassy",
-		"engine",
-		"england",
-		"europe",
-		"eye",
-		"face",
-		"fair",
-		"fall",
-		"fan",
-		"field",
-		"file",
-		"film",
-		"fire",
-		"fish",
-		"flute",
-		"fly",
-		"force",
-		"forest",
-		"fork",
-		"france",
-		"future",
-		"gas",
-		"germany",
-		"ghost",
-		"giant",
-		"glass",
-		"glove",
-		"gold",
-		"grace",
-		"grass",
-		"greece",
-		"green",
-		"ground",
-		"ham",
-		"hand",
-		"hawk",
-		"head",
-		"heart",
-		"himalayas",
-		"hole",
-		"hollywood",
-		"hood",
-		"hook",
-		"horn",
-		"horse",
-		"horseshoe",
-		"hospital",
-		"hotel",
-		"ice",
-		"ice cream",
-		"india",
-		"iron",
-		"ivory",
-		"jam",
-		"jet",
-		"jupiter",
-		"kangaroo",
-		"ketchup",
-		"kid",
-		"king",
-		"kiwi",
-		"knife",
-		"knight",
-		"lab",
-		"lap",
-		"laser",
-		"lawyer",
-		"lead",
-		"lemon",
-		"limousine",
-		"line",
-		"link",
-		"lion",
-		"litter",
-		"lock",
-		"log",
-		"london",
-		"luck",
-		"mammoth",
-		"maple",
-		"marble",
-		"march",
-		"mass",
-		"match",
-		"mercury",
-		"mexico",
-		"microscope",
-		"millionaire",
-		"mine",
-		"mint",
-		"missile",
-		"model",
-		"mole",
-		"moon",
-		"moscow",
-		"mount",
-		"mouse",
-		"mouth",
-		"mug",
-		"needle",
-		"net",
-		"new york",
-		"night",
-		"note",
-		"novel",
-		"nurse",
-		"nut",
-		"octopus",
-		"oil",
-		"olive",
-		"olympus",
-		"opera",
-		"orange",
-		"palm",
-		"pan",
-		"pants",
-		"paper",
-		"paris",
-		"park",
-		"part",
-		"paste",
-		"penguin",
-		"phoenix",
-		"piano",
-		"pie",
-		"pilot",
-		"pin",
-		"pitch",
-		"platypus",
-		"plot",
-		"point",
-		"poison",
-		"police",
-		"pool",
-		"port",
-		"pound",
-		"press",
-		"princess",
-		"pupil",
-		"queen",
-		"rabbit",
-		"racket",
-		"ray",
-		"revolution",
-		"ring",
-		"robin",
-		"robot",
-		"rock",
-		"rome",
-		"root",
-		"rose",
-		"roulette",
-		"round",
-		"row",
-		"ruler",
-		"satellite",
-		"saturn",
-		"scale",
-		"scientist",
-		"scorpion",
-		"scuba diver",
-		"seal",
-		"server",
-		"shadow",
-		"ship",
-		"shoe",
-		"shot",
-		"sink",
-		"skyscraper",
-		"slip",
-		"slug",
-		"snow",
-		"snowman",
-		"sock",
-		"soul",
-		"sound",
-		"space",
-		"spell",
-		"spider",
-		"spike",
-		"spot",
-		"spring",
-		"spy",
-		"square",
-		"stadium",
-		"staff",
-		"star",
-		"state",
-		"stick",
-		"straw",
-		"string",
-		"sub",
-		"swing",
-		"switch",
-		"table",
-		"tablet",
-		"tail",
-		"tap",
-		"teacher",
-		"telescope",
-		"temple",
-		"tick",
-		"tie",
-		"time",
-		"tokyo",
-		"tooth",
-		"torch",
-		"tower",
-		"track",
-		"triangle",
-		"trip",
-		"turkey",
-		"undertaker",
-		"unicorn",
-		"vacuum",
-		"van",
-		"vet",
-		"wake",
-		"wall",
-		"war",
-		"washer",
-		"washington",
-		"water",
-		"wave",
-		"web",
-		"well",
-		"whale",
-		"whip",
-		"wind",
-		"witch",
-		"worm",
-		"yard",
-		"shakespeare"
-	],
-	gameWords: [],
 	boardSize: 25,
+	gameWords: [],
 	teamOne: undefined,
-	redScore: 0,
-	blueScore: 0,
-	user: {
-		team: "Red",
-		role: "Cluemaster"
-	}
-
+	score: {
+		Red: 0,
+		Blue: 0
+	},
+	user: undefined,
+	player: undefined,
+	loggedIn: false,
+	gameStarted: false,
+	turnIndex: undefined
 };
 
 //View
+var mainTemplate;
 var boardTemplate;
 //var scoreTemplate;
 
 function buildTemplates() {
+	var mainSource = $('#main-template').html();
+	mainTemplate = Handlebars.compile(mainSource);
+
 	var boardSource = $('#board-template').html();
 	boardTemplate = Handlebars.compile(boardSource);
 
@@ -348,17 +30,34 @@ function buildTemplates() {
 //	scoreTemplate = Handlebars.compile(scoreSource);
 }
 
-function renderBoard() {
+function renderMain() {
+	var mainContent = mainTemplate(Model);
+	$('#main').html(mainContent);
+}
+
+function renderGame(snapshot) {
 	//passThis is inelegant, but I don't know how to get Handlebars to iterate through var words otherwise
 	var passThis = { words: [] };
 	$('#wordgrid table').html('');
+	Model.score.Red = 0;
+	Model.score.Blue = 0;
 
-	for (var i = 0; i < Model.boardSize; i++) {
-		var color = (Model.gameWords[i].isGuessed) ? Model.gameWords[i].team :
-			((Model.user.role == 'Cluemaster') ? 'hidden' + Model.gameWords[i].team : '');
+	for (var i = 0; i < snapshot.keys().length; i++) {
+		var word = snapshot[ snapshot.keys()[i] ]; //better way to do this?
+		var color = '';
+		if (word.isGuessed) {
+			color = word.team;
+		} else {
+			if (word.team == 'Red' || word.team == 'Blue') {
+				Model.score[word.team]++;
+			}
+			if (Model.player.role == 'Cluemaster') { //change to DB lookup
+				color = 'hidden' + word.team;
+			}
+		}
 		passThis.words.push({
 			color: color,
-			word: Model.gameWords[i].word
+			word: word.word //oh god
 		});
 		if (passThis.words.length == 5) {
 			var wordRow = boardTemplate(passThis);
@@ -369,63 +68,183 @@ function renderBoard() {
 	if (passThis.words.length) {
 		var wordRow = boardTemplate(words);
 		$('#wordgrid table').append(wordRow);
+		passThis.words = [];
 	}
-}
 
-function renderScore() {
-	$('#redclues .score').html('Agents Left: ' + Model.redScore);
-	$('#blueclues .score').html('Agents Left: ' + Model.blueScore);
+	$('#redclues .score').html('Agents Left: ' + Model.score.Red);
+	$('#blueclues .score').html('Agents Left: ' + Model.score.Blue);
 }
 
 //Controller
 function setup () {
+	buildTemplates();
+
+	//Sign In Listeners
+	$('#main').on('click','#register',handleRegister);
+	$('#main').on('click','#login',handleLogin);
+	$('#main').on('click','#sign-out',handleSignOut);
+	firebase.auth().onAuthStateChanged(handleAuthStateChange);
+
+	firebase.database().ref('players').on('value',checkGameStart);
+	firebase.database().ref('words').on('value',renderGame);
+
+	firebase.database().ref('currentPlayer').on('value',playTurn);
+
+	//Guesser Listeners
+	
+}
+
+function playTurn(snapshot) {
+	if (Model.player.role == 'Guesser') {
+		//THIS WON'T WORK, will just apply a bunch of listeners
+		while (Model.player.turn == snapshot.val()){
+			$('#wordgrid').on('click','td',revealTeam);
+		}
+	}
+}
+
+function checkGameStart(snapshot) {
+	var players = snapshot.keys();
+	if (players.length >= 4 && !Model.gameStarted) {
+
+		Model.gameStarted = true; //belongs somewhere else?
+		var signupNum = players.orderByKey().indexOf(player.playerID);
+
+		switch (signupNum) {
+			case 0:
+				Model.player.role = 'Cluemaster';
+				Model.player.team = 'Red';
+				Model.player.turn = signupNum;
+				break;
+			case 1:
+				Model.player.role = 'Guesser';
+				Model.player.team = 'Red';
+				Model.player.turn = signupNum;
+				break;
+			case 2:
+				Model.player.role = 'Cluemaster';
+				Model.player.team = 'Blue';
+				Model.player.turn = signupNum;
+				break;
+			case 3:
+				Model.player.role = 'Guesser';
+				Model.player.team = 'Blue';
+				Model.player.turn = signupNum;
+				//Only initGame via one person
+				initGame();
+				break;
+			default:
+				//anything?
+				Model.player.role = 'Observer';
+				Model.player.team = 'Observer';
+		}
+
+		firebase.database().ref('players').child(player.playerID).update({
+			userID: Model.user.uid,
+			role: Model.player.role,
+			team: Model.player.team,
+			turn: signupNum
+		});
+	}
+	//Should have some sort of hold music page
+}
+
+function initGame () {
 	//randomly determine who goes first
 	if (Math.random() < 0.5) {
 		Model.teamOne = "Red";
-		Model.redScore = 1;
+		Model.turnIndex = 0;
 	} else {
 		Model.teamOne = "Blue";
-		Model.blueScore = 1;
+		Model.turnIndex = 2;
 	}
-	pickWords();
-	buildTemplates();
-	renderBoard();
-	renderScore();
+	Model.score[Model.teamOne] = 1;
 
-	$('#wordgrid').on('click','td',revealTeam);
+	//clear out last game's words, then pick new ones
+	firebase.database().ref('words').remove(pickWords);
 }
 
 function pickWords() {
-	var wordIndices = pickItems(Model.allWords.length, Model.boardSize);
+	firebase.database().ref('wordBank').on('value',function (snapshot) {
+		var wordIndices = pickItems(snapshot.length, Model.boardSize);
 
-	//Each team gets 1/3 of the non-assassins
-	var agentsPerTeam = (Model.boardSize - 1) / 3;
-	Model.redScore += agentsPerTeam;
-	Model.blueScore += agentsPerTeam;
-	//add 2 for assassin and teamOne's extra person
-	var agentCount = (2 * agentsPerTeam) + 2;
-	var specialWords = pickItems(Model.boardSize, agentCount);
-	var team;
+		//Each team gets 1/3 of the non-assassins
+		var agentsPerTeam = (Model.boardSize - 1) / 3;
+		Model.score.Red += agentsPerTeam;
+		Model.score.Blue += agentsPerTeam;
+		//add 2 for assassin and teamOne's extra person
+		var agentCount = (2 * agentsPerTeam) + 2;
+		var specialWords = pickItems(Model.boardSize, agentCount);
 
-	for (var i = 0; i < wordIndices.length; i++) {
-		team = specialWords.indexOf(i);
-		if (team == -1) {
-			team = "Neutral";
-		} else if (team == 0) {
-			team = "Assassin";
-		} else if (team < (agentCount / 2)) {
-			team = "Red";
-		} else if (team == agentCount - 1) {
-			team = Model.teamOne;
-		} else {
-			team = "Blue";
+		var team;
+		for (var i = 0; i < wordIndices.length; i++) {
+			team = specialWords.indexOf(i);
+			if (team == -1) {
+				team = "Neutral";
+			} else if (team == 0) {
+				team = "Assassin";
+			} else if (team < (agentCount / 2)) {
+				team = "Red";
+			} else if (team == agentCount - 1) {
+				team = Model.teamOne;
+			} else {
+				team = "Blue";
+			}
+
+			firebase.database().ref('words').push({
+				word: snapshot.val(),
+				team: team,
+				isGuessed: false
+			});
 		}
-		Model.gameWords.push({
-			word: Model.allWords[ wordIndices[i] ],
-			team: team,
-			isGuessed: false
+	});
+}
+
+function handleRegister() {
+  var email = $('input[name="email"').val();
+  var password = $('input[name="password"').val();
+
+  //we don't need to encrypt the PW before using it here?
+  firebase.auth().createUserWithEmailAndPassword(email,password);
+}
+
+function handleLogin() {
+  var email = $('input[name="email"').val();
+  var password = $('input[name="password"').val();
+
+  //we don't need to encrypt the PW before using it here?
+  firebase.auth().signInWithEmailAndPassword(email, password);
+}
+
+function handleSignOut() {
+	//need to set up a callback to ensure key is removed before signout
+	firebase.database().ref('players').child(Model.player.playerID).remove();
+	firebase.auth().signOut();
+}
+
+function handleAuthStateChange() {
+	var user = firebase.auth().currentUser; //undefined if not logged in, object if so
+	if (user) {
+		Model.loggedIn = true;
+		Model.user = user;
+		var player = firebase.database().ref('players').push({
+			userID: user.uid,
+			role: undefined,
+			team: undefined
 		});
+		Model.player = {
+			playerID: player.key,
+			role: undefined,
+			team: undefined
+		};
+	} else {
+		Model.loggedIn = false;
+		Model.user = undefined;
 	}
+
+  //update view accordingly
+  renderMain();
+ 
 }
 
 function pickItems (items,picks) {
@@ -447,16 +266,15 @@ function revealTeam() {
 		if (word == Model.gameWords[i].word) {
 			Model.gameWords[i].isGuessed = true;
 			if (Model.gameWords[i].team == "Red") {
+				//Fix to updated score Model
 				Model.redScore--;
-				renderScore();
 			} else if (Model.gameWords[i].team == "Blue") {
 				Model.blueScore--;
-				renderScore();
 			}
 			break;
 		}
 	}
-	renderBoard();
+	renderGame();
 }
 
 $(document).ready(setup);

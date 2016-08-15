@@ -9,6 +9,31 @@
 	<div id="container">
 		<h1 id="title">Codenames</h1>
 		<div id="main">
+		</div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.0.0.min.js" integrity="sha256-JmvOoLtYsmqlsWxa7mDSLMwa6dZ9rrIdtrrVYRnDRH0="   crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
+
+	<script src="https://www.gstatic.com/firebasejs/3.2.1/firebase.js"></script>
+	<script>
+  	// Initialize Firebase
+  		var config = {
+    		apiKey: "AIzaSyDF4QYrlm_wH29hih-k1DGDciUx-UmJ5zo",
+		    authDomain: "codenames-54c2f.firebaseapp.com",
+		    databaseURL: "https://codenames-54c2f.firebaseio.com",
+		    storageBucket: "codenames-54c2f.appspot.com",
+  		};
+  		firebase.initializeApp(config);
+	</script>
+	
+	<script type="text/javascript" src="js/index.js"></script>
+
+	<script id="board-template" type="text/x-handlebars-template">
+		<tr>{{#each words}}<td class="{{color}}">{{word}}</td>{{/each}}</tr>
+	</script>
+	<script id="main-template" type="text/x-handlebars-template">
+		{{#if loggedIn}}
 			<div id="redclues" class="cluespace">
 				<h2>Red Team</h2>
 				<h3 class="score"></h3>
@@ -37,15 +62,18 @@
 			<div id="wordgrid">
 				<table></table>
 			</div>
-		</div>
-	</div>
-	<script src="https://code.jquery.com/jquery-3.0.0.min.js" integrity="sha256-JmvOoLtYsmqlsWxa7mDSLMwa6dZ9rrIdtrrVYRnDRH0="   crossorigin="anonymous"></script>
-  	<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
-	<script type="text/javascript" src="js/index.js"></script>
-
-	<script id="board-template" type="text/x-handlebars-template">
-		<tr>{{#each words}}<td class="{{color}}">{{word}}</td>{{/each}}</tr>
+			<p><a id="sign-out" href="#">Sign out</a></p>
+		{{else}}
+			<div id="registerLoginForm">
+				<h2>Register/Login</h2>
+				<input name="email" type="email" placeholder="Email Address" />
+				<input name="password" type="password" placeholder="Password" />
+				<input id="register" type="submit" value="Register" />
+				<input id="login" type="submit" value="Login" />
+			</div>
+		{{/if}}
 	</script>
+
 
 <!--	<script id="score-template" type="text/x-handlebars-template">Agents Left to Find: {{score}}</script> -->
 
