@@ -1,17 +1,9 @@
 //Model
 var Model = {
 	boardSize: 25,
-	gameWords: [],
-	teamOne: undefined,
-	score: {
-		Red: 0,
-		Blue: 0
-	},
 	user: undefined,
-	player: undefined,
 	loggedIn: false,
-	gameStarted: false,
-	turnIndex: undefined
+	gameStarted: false
 };
 
 //View
@@ -39,8 +31,6 @@ function renderGame(snapshot) {
 	//passThis is inelegant, but I don't know how to get Handlebars to iterate through var words otherwise
 	var passThis = { words: [] };
 	$('#wordgrid table').html('');
-	Model.score.Red = 0;
-	Model.score.Blue = 0;
 
 	for (var i = 0; i < snapshot.keys().length; i++) {
 		var word = snapshot[ snapshot.keys()[i] ]; //better way to do this?
@@ -48,14 +38,13 @@ function renderGame(snapshot) {
 		if (word.isGuessed) {
 			color = word.team;
 		} else {
-			if (word.team == 'Red' || word.team == 'Blue') {
-				Model.score[word.team]++;
-			}
-			if (Model.player.role == 'Cluemaster') { //change to DB lookup
+			var userID = firebase.auth().currentUser.uid;
+			if (firebase.database().ref('players').child(userID).child('role').val() == 'Cluemaster') {
 				color = 'hidden' + word.team;
 			}
 		}
 		passThis.words.push({
+			id: snapshot.keys()[i],
 			color: color,
 			word: word.word //oh god
 		});
@@ -66,18 +55,21 @@ function renderGame(snapshot) {
 		}
 	}
 	if (passThis.words.length) {
-		var wordRow = boardTemplate(words);
+		var wordRow = boardTemplate(passThis);
 		$('#wordgrid table').append(wordRow);
 		passThis.words = [];
 	}
 
-	$('#redclues .score').html('Agents Left: ' + Model.score.Red);
-	$('#blueclues .score').html('Agents Left: ' + Model.score.Blue);
+	//move to another view function?
+	$('#redclues .score').html('Agents Left: ' + firebase.database().ref('gameStats').child('score').child('Red').val());
+	$('#blueclues .score').html('Agents Left: ' + firebase.database().ref('gameStats').child('score').child('Blue').val());
 }
 
 //Controller
 function setup () {
 	buildTemplates();
+	//wipe old data (need to check if it exists?) (will this break listeners?)
+	firebase.database().ref('gameStats').remove();
 
 	//Sign In Listeners
 	$('#main').on('click','#register',handleRegister);
@@ -88,77 +80,159 @@ function setup () {
 	firebase.database().ref('players').on('value',checkGameStart);
 	firebase.database().ref('words').on('value',renderGame);
 
-	firebase.database().ref('currentPlayer').on('value',playTurn);
-
-	//Guesser Listeners
+	firebase.database().ref('gameStats').child('turn').on('value',playTurn);
 	
 }
 
 function playTurn(snapshot) {
-	if (Model.player.role == 'Guesser') {
-		//THIS WON'T WORK, will just apply a bunch of listeners
-		while (Model.player.turn == snapshot.val()){
+	var userID = firebase.auth().currentUser.uid;
+	var player = firebase.database().ref('players').child(userID);
+
+	if (player.turn == snapshot.val()) {
+		if (player.role == 'Guesser') {
 			$('#wordgrid').on('click','td',revealTeam);
 		}
+		if (player.role == 'Cluemaster') {
+			//Need to create form fields
+		}
+		
 	}
+}
+
+function revealTeam() {
+	var wordId = $(this).attr('id');
+	var word = firebase.database().ref('words').child(wordId);
+	var gameStats = firebase.database.ref('gameStats');
+	var guesses = gameStats.child('guesses');
+	var score = gameStats.child('score');
+
+	//if has guesses left and the word's not been guessed
+	if (guesses.val() && !word.child(isGuessed).val()) {
+		//one less guess
+		guesses.update(guesses.val() - 1);
+		//reveal word in Model
+		word.child(isGuessed).update(true);
+		//update score
+		switch (word.child('team').val()) {
+			case 'Red':
+				score.update({
+					Red: score.Red.val() - 1
+				});
+				break;
+			case 'Blue':
+				score.update({
+					Blue: score.Blue.val() - 1
+				});
+				break;
+			case 'Assassin':
+				if (firebase.database().ref('gameStats').child('turn').val() == 1) {
+					score.update({
+						Blue: 0
+					});				
+				} else {
+					score.update({
+						Red: 0
+					});	
+				}
+		}
+
+		//this seems roundabout. Can we assume that this function only runs for current player?
+		var turn = gameStats.child('turn').val();
+		var currentPlayer = gameStats.child('turnOrder').child(turn).val();
+		var currentPlayerTeam = firebase.database().ref('players').child(currentPlayer).child('team').val();
+		//if the current player guessed the wrong color or is out of guesses
+		if (word.child(team).val() != currentPlayerTeam || !guesses.val() ) {
+			$('#wordgrid').off('click','td');
+			gameStats.child('turn').update( (turn + 1) % 4);
+		}
+	}
+
+	renderGame();
 }
 
 function checkGameStart(snapshot) {
 	var players = snapshot.keys();
+	var userID = firebase.auth().currentUser.uid;
 	if (players.length >= 4 && !Model.gameStarted) {
 
 		Model.gameStarted = true; //belongs somewhere else?
-		var signupNum = players.orderByKey().indexOf(player.playerID);
+		var signupNum = players.orderByKey().indexOf(userID);
 
 		switch (signupNum) {
 			case 0:
-				Model.player.role = 'Cluemaster';
-				Model.player.team = 'Red';
-				Model.player.turn = signupNum;
+				firebase.database().ref('players').child(userID).set({
+					role: 'Cluemaster',
+					team: 'Red',
+					turn: signupNum
+				});
 				break;
 			case 1:
-				Model.player.role = 'Guesser';
-				Model.player.team = 'Red';
-				Model.player.turn = signupNum;
+				firebase.database().ref('players').child(userID).set({
+					role: 'Guesser',
+					team: 'Red',
+					turn: signupNum
+				});
 				break;
 			case 2:
-				Model.player.role = 'Cluemaster';
-				Model.player.team = 'Blue';
-				Model.player.turn = signupNum;
+				firebase.database().ref('players').child(userID).set({
+					role: 'Cluemaster',
+					team: 'Blue',
+					turn: signupNum
+				});
 				break;
 			case 3:
-				Model.player.role = 'Guesser';
-				Model.player.team = 'Blue';
-				Model.player.turn = signupNum;
+				firebase.database().ref('players').child(userID).set({
+					role: 'Guesser',
+					team: 'Blue',
+					turn: signupNum
+				});
 				//Only initGame via one person
 				initGame();
 				break;
 			default:
 				//anything?
-				Model.player.role = 'Observer';
-				Model.player.team = 'Observer';
+				firebase.database().ref('players').child(userID).set({
+					role: 'Observer',
+					team: 'Observer',
+					turn: undefined
+				});
 		}
 
-		firebase.database().ref('players').child(player.playerID).update({
-			userID: Model.user.uid,
-			role: Model.player.role,
-			team: Model.player.team,
-			turn: signupNum
-		});
+		//will this work?
+		firebase.database().ref('gameStats').child('turnOrder').child(signupNum).set(userID);
+
+	} else {
+		//Should have some sort of hold music page
 	}
-	//Should have some sort of hold music page
 }
+
+//Game setup functions
 
 function initGame () {
 	//randomly determine who goes first
 	if (Math.random() < 0.5) {
-		Model.teamOne = "Red";
-		Model.turnIndex = 0;
+		firebase.database().ref('gameStats').set({
+			turn: 0,
+			//declare score, or just calculate it for display?
+			score: {
+				Red: 9,
+				Blue: 8
+			}
+		});
+//		Model.teamOne = "Red";
+//		Model.turnIndex = 0;
 	} else {
-		Model.teamOne = "Blue";
-		Model.turnIndex = 2;
+		firebase.database().ref('gameStats').set({
+			turn: 2,
+			score: {
+				Red: 8,
+				Blue: 9
+			}
+		});
+//		Model.teamOne = "Blue";
+//		Model.turnIndex = 2;
 	}
-	Model.score[Model.teamOne] = 1;
+//	Model.score[Model.teamOne] = 1;
 
 	//clear out last game's words, then pick new ones
 	firebase.database().ref('words').remove(pickWords);
@@ -166,12 +240,15 @@ function initGame () {
 
 function pickWords() {
 	firebase.database().ref('wordBank').on('value',function (snapshot) {
-		var wordIndices = pickItems(snapshot.length, Model.boardSize);
+		var wordIndices = pickItems(snapshot.keys().length, Model.boardSize);
 
 		//Each team gets 1/3 of the non-assassins
 		var agentsPerTeam = (Model.boardSize - 1) / 3;
-		Model.score.Red += agentsPerTeam;
-		Model.score.Blue += agentsPerTeam;
+
+		//Hard coding during init instead of making it generalizable
+//		Model.score.Red += agentsPerTeam;
+//		Model.score.Blue += agentsPerTeam;
+
 		//add 2 for assassin and teamOne's extra person
 		var agentCount = (2 * agentsPerTeam) + 2;
 		var specialWords = pickItems(Model.boardSize, agentCount);
@@ -186,7 +263,12 @@ function pickWords() {
 			} else if (team < (agentCount / 2)) {
 				team = "Red";
 			} else if (team == agentCount - 1) {
-				team = Model.teamOne;
+				//extra agent goes to starting team
+				if (firebase.database().ref('gameStats').child('turn').val()) {
+					team = 'Blue';
+				} else {
+					team = 'Red';
+				}
 			} else {
 				team = "Blue";
 			}
@@ -199,6 +281,8 @@ function pickWords() {
 		}
 	});
 }
+
+//Login Functions
 
 function handleRegister() {
   var email = $('input[name="email"').val();
@@ -217,9 +301,10 @@ function handleLogin() {
 }
 
 function handleSignOut() {
-	//need to set up a callback to ensure key is removed before signout
-	firebase.database().ref('players').child(Model.player.playerID).remove();
-	firebase.auth().signOut();
+	var user = firebase.auth().currentUser;
+	firebase.database().ref('players').child(user.uid).remove(function () {
+		firebase.auth().signOut();
+	});
 }
 
 function handleAuthStateChange() {
@@ -227,16 +312,11 @@ function handleAuthStateChange() {
 	if (user) {
 		Model.loggedIn = true;
 		Model.user = user;
-		var player = firebase.database().ref('players').push({
-			userID: user.uid,
+		var player = firebase.database().ref('players').child(user.uid).set({
 			role: undefined,
-			team: undefined
+			team: undefined,
+			turn: undefined
 		});
-		Model.player = {
-			playerID: player.key,
-			role: undefined,
-			team: undefined
-		};
 	} else {
 		Model.loggedIn = false;
 		Model.user = undefined;
@@ -260,21 +340,5 @@ function pickItems (items,picks) {
 	return returnArray;
 }
 
-function revealTeam() {
-	var word = $(this).html();
-	for (var i = 0; i < Model.gameWords.length; i++) {
-		if (word == Model.gameWords[i].word) {
-			Model.gameWords[i].isGuessed = true;
-			if (Model.gameWords[i].team == "Red") {
-				//Fix to updated score Model
-				Model.redScore--;
-			} else if (Model.gameWords[i].team == "Blue") {
-				Model.blueScore--;
-			}
-			break;
-		}
-	}
-	renderGame();
-}
 
 $(document).ready(setup);
