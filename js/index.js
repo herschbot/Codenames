@@ -3,12 +3,17 @@ var Model = {
 	boardSize: 25,
 	user: undefined,
 	loggedIn: false,
-	gameStarted: false
+	gameStarted: false,
+	teamOne: undefined
 };
 
 //View
 var mainTemplate;
 var boardTemplate;
+var clueTemplate;
+var clueForm = '<input name="clue" type="text" placeholder="One-word Clue" /> ' +
+				'<input name="number" type="number" placeholder="Number of Agents" /> ' +
+				'<input id="giveclue" type="submit" value="Enter Clue" />';
 //var scoreTemplate;
 
 function buildTemplates() {
@@ -17,6 +22,9 @@ function buildTemplates() {
 
 	var boardSource = $('#board-template').html();
 	boardTemplate = Handlebars.compile(boardSource);
+
+	var clueSource = $('#clue-template').html();
+	clueTemplate = Handlebars.compile(clueSource);
 
 //	var scoreSource = $('#score-template').html();
 //	scoreTemplate = Handlebars.compile(scoreSource);
@@ -27,24 +35,34 @@ function renderMain() {
 	$('#main').html(mainContent);
 }
 
-function renderGame(snapshot) {
+function renderBoard(snapshot) {
+	var wordKeys = Object.keys(snapshot.val());
+
 	//passThis is inelegant, but I don't know how to get Handlebars to iterate through var words otherwise
 	var passThis = { words: [] };
 	$('#wordgrid table').html('');
 
-	for (var i = 0; i < snapshot.keys().length; i++) {
-		var word = snapshot[ snapshot.keys()[i] ]; //better way to do this?
+	for (var i = 0; i < wordKeys.length; i++) {
+		var word;
+		firebase.database().ref('words').child(wordKeys[i]).on('value',function (snapshot) {
+			word = snapshot.val();
+			firebase.database().ref('words').child(wordKeys[i]).off('value');
+		});
 		var color = '';
 		if (word.isGuessed) {
 			color = word.team;
 		} else {
 			var userID = firebase.auth().currentUser.uid;
-			if (firebase.database().ref('players').child(userID).child('role').val() == 'Cluemaster') {
-				color = 'hidden' + word.team;
-			}
+			firebase.database().ref('players').child(userID).child('role').on('value',function (snapshot) {
+				var userRole = snapshot.val();
+				if (userRole == 'Cluemaster') {
+					color = 'hidden' + word.team;
+				}
+				firebase.database().ref('players').child(userID).child('role').off('value');
+			});
 		}
 		passThis.words.push({
-			id: snapshot.keys()[i],
+			id: wordKeys[i],
 			color: color,
 			word: word.word //oh god
 		});
@@ -61,27 +79,50 @@ function renderGame(snapshot) {
 	}
 
 	//move to another view function?
-	$('#redclues .score').html('Agents Left: ' + firebase.database().ref('gameStats').child('score').child('Red').val());
-	$('#blueclues .score').html('Agents Left: ' + firebase.database().ref('gameStats').child('score').child('Blue').val());
+	firebase.database().ref('gameStats').child('score').on('value',function (snapshot) {
+		var scores = snapshot.val();
+		$('#redclues .score').html('Agents Left: ' + scores.Red);
+		$('#blueclues .score').html('Agents Left: ' + scores.Blue);
+		firebase.database().ref('gameStats').child('score').off('value');
+	});
+}
+
+function renderClue(snapshot) {
+	var clueNum = firebase.database().ref('clues').keys().length;
+	var passThis = {
+		clue: snapshot.child('clue').val(),
+		parity: (clueNum % 4 == 1 || clueNum % 4 == 2) ? 'odd' : 'even',
+		checkboxes : []
+	};
+	var team = snapshot.child('team').val().toLowerCase();
+	var color = team.charAt(0);
+	for (i = 1; i <= snapshot.child('number').val(); i++) {
+		passThis.checkboxes.push({
+			checkboxname : color + clueNum + i
+		});
+	}
+	var newClue = clueTemplate(passThis);
+	$('#' + team + 'clues').append(newClue);
 }
 
 //Controller
 function setup () {
 	buildTemplates();
-	//wipe old data (need to check if it exists?) (will this break listeners?)
-	firebase.database().ref('gameStats').remove();
+
 
 	//Sign In Listeners
 	$('#main').on('click','#register',handleRegister);
 	$('#main').on('click','#login',handleLogin);
 	$('#main').on('click','#sign-out',handleSignOut);
-	firebase.auth().onAuthStateChanged(handleAuthStateChange);
+	firebase.auth().onAuthStateChanged(handleAuthStateChange);	
+}
+
+function signedInSetup() {
 
 	firebase.database().ref('players').on('value',checkGameStart);
-	firebase.database().ref('words').on('value',renderGame);
+	firebase.database().ref('clues').on('child_added',renderClue);
 
 	firebase.database().ref('gameStats').child('turn').on('value',playTurn);
-	
 }
 
 function playTurn(snapshot) {
@@ -93,10 +134,32 @@ function playTurn(snapshot) {
 			$('#wordgrid').on('click','td',revealTeam);
 		}
 		if (player.role == 'Cluemaster') {
-			//Need to create form fields
+			$('#clueform').html(clueForm);
+			$('#clueform').on('click','submit',handleClue);
 		}
 		
 	}
+}
+
+function handleClue() {
+	var clue = $('input[name="clue"').val();
+	var number = $('input[name="number"').val();
+
+	//this seems roundabout. Can we assume that this function only runs for current player?
+	var gameStats = firebase.database.ref('gameStats');
+	var turn = gameStats.child('turn').val();
+	var currentPlayer = gameStats.child('turnOrder').child(turn).val();
+	var team = firebase.database().ref('players').child(currentPlayer).child('team').val();
+
+	firebase.database().ref('clues').push({
+		clue: clue,
+		number: number,
+		team: team
+	},function() {
+		$('#clueform').off('click','submit');
+		$('#clueform').html('');
+		gameStats.child('turn').update( (turn + 1) % 4);
+	});
 }
 
 function revealTeam() {
@@ -147,16 +210,18 @@ function revealTeam() {
 		}
 	}
 
-	renderGame();
+	renderBoard();
 }
 
 function checkGameStart(snapshot) {
-	var players = snapshot.keys();
+	var players = snapshot.val();
 	var userID = firebase.auth().currentUser.uid;
-	if (players.length >= 4 && !Model.gameStarted) {
+	var playerKeys = Object.keys(players);
+	if (playerKeys.length >= 4 && !Model.gameStarted) {
 
+		firebase.database().ref('words').on('value',renderBoard);
 		Model.gameStarted = true; //belongs somewhere else?
-		var signupNum = players.orderByKey().indexOf(userID);
+		var signupNum = playerKeys.indexOf(userID);
 
 		switch (signupNum) {
 			case 0:
@@ -165,6 +230,7 @@ function checkGameStart(snapshot) {
 					team: 'Red',
 					turn: signupNum
 				});
+				console.log('your role is Red Cluemaster');
 				break;
 			case 1:
 				firebase.database().ref('players').child(userID).set({
@@ -172,6 +238,7 @@ function checkGameStart(snapshot) {
 					team: 'Red',
 					turn: signupNum
 				});
+				console.log('your role is Red Guesser');
 				break;
 			case 2:
 				firebase.database().ref('players').child(userID).set({
@@ -179,6 +246,7 @@ function checkGameStart(snapshot) {
 					team: 'Blue',
 					turn: signupNum
 				});
+				console.log('your role is Blue Cluemaster');
 				break;
 			case 3:
 				firebase.database().ref('players').child(userID).set({
@@ -186,6 +254,7 @@ function checkGameStart(snapshot) {
 					team: 'Blue',
 					turn: signupNum
 				});
+				console.log('your role is Blue Guesser');
 				//Only initGame via one person
 				initGame();
 				break;
@@ -201,16 +270,30 @@ function checkGameStart(snapshot) {
 		//will this work?
 		firebase.database().ref('gameStats').child('turnOrder').child(signupNum).set(userID);
 
-	} else {
-		//Should have some sort of hold music page
+	} else if (players.length < 4) {
+		//need better hold music
+		console.log('waiting for more players. Currently at ' + players.length);
 	}
 }
 
 //Game setup functions
 
 function initGame () {
+	//wipe old data
+	firebase.database().ref('gameStats').remove(function () {
+		firebase.database().ref('players').on('value',function (snapshot) {
+			var players = snapshot.val();
+			var playerKeys = Object.keys(players);
+			for (var i = 0; i < 4; i++) {
+				firebase.database().ref('gameStats').child('turnOrder').child(i).set(playerKeys[i]);
+			}
+			firebase.database().ref('players').off('value');
+		});
+	});
+
 	//randomly determine who goes first
 	if (Math.random() < 0.5) {
+		Model.teamOne = 'Red';
 		firebase.database().ref('gameStats').set({
 			turn: 0,
 			//declare score, or just calculate it for display?
@@ -222,6 +305,7 @@ function initGame () {
 //		Model.teamOne = "Red";
 //		Model.turnIndex = 0;
 	} else {
+		Model.teamOne = 'Blue';
 		firebase.database().ref('gameStats').set({
 			turn: 2,
 			score: {
@@ -240,7 +324,9 @@ function initGame () {
 
 function pickWords() {
 	firebase.database().ref('wordBank').on('value',function (snapshot) {
-		var wordIndices = pickItems(snapshot.keys().length, Model.boardSize);
+		var wordBank = snapshot.val();
+		var wordBankKeys = Object.keys(wordBank);
+		var wordIndices = pickItems(wordBankKeys.length, Model.boardSize);
 
 		//Each team gets 1/3 of the non-assassins
 		var agentsPerTeam = (Model.boardSize - 1) / 3;
@@ -264,22 +350,21 @@ function pickWords() {
 				team = "Red";
 			} else if (team == agentCount - 1) {
 				//extra agent goes to starting team
-				if (firebase.database().ref('gameStats').child('turn').val()) {
-					team = 'Blue';
-				} else {
-					team = 'Red';
-				}
+				team = Model.teamOne;
 			} else {
 				team = "Blue";
 			}
 
+			var word = wordBank[wordBankKeys[i]];
+
 			firebase.database().ref('words').push({
-				word: snapshot.val(),
+				word: word,
 				team: team,
 				isGuessed: false
 			});
 		}
 	});
+
 }
 
 //Login Functions
@@ -312,11 +397,12 @@ function handleAuthStateChange() {
 	if (user) {
 		Model.loggedIn = true;
 		Model.user = user;
-		var player = firebase.database().ref('players').child(user.uid).set({
-			role: undefined,
-			team: undefined,
-			turn: undefined
+		firebase.database().ref('players').child(user.uid).set({
+			role: 'placeholder',
+			team: 'placeholder',
+			turn: 'placeholder'
 		});
+		signedInSetup();
 	} else {
 		Model.loggedIn = false;
 		Model.user = undefined;

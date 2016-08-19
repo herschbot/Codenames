@@ -32,36 +32,23 @@
 	<script id="board-template" type="text/x-handlebars-template">
 		<tr>{{#each words}}<td id="{{id}}" class="{{color}}">{{word}}</td>{{/each}}</tr>
 	</script>
+
 	<script id="main-template" type="text/x-handlebars-template">
 		{{#if loggedIn}}
 			<div id="redclues" class="cluespace">
 				<h2>Red Team</h2>
 				<h3 class="score"></h3>
 				<h3>Clues</h3>
-				<div class="odd">
-					Grimy <input type="checkbox" name="r11"><input type="checkbox" name="r12">
-				</div>
-				<div class="even">
-					Clean <input type="checkbox" name="r21"><input type="checkbox" name="r22"><input type="checkbox" name="r23">
-				</div>
 			</div>
 			<div id="blueclues" class="cluespace">
 				<h2>Blue Team</h2>
 				<h3 class="score"></h3>
 				<h3>Clues</h3>
-				<div class="odd">
-					Grimy <input type="checkbox" name="b11"><input type="checkbox" name="b12">
-				</div>
-				<div class="even">
-					Clean <input type="checkbox" name="b21"><input type="checkbox" name="b22"><input type="checkbox" name="b23">
-				</div>
-				<div class="odd">
-					Another <input type="checkbox" name="b11"><input type="checkbox" name="b12">
-				</div>
 			</div>
 			<div id="wordgrid">
 				<table></table>
 			</div>
+			<div id="clueform"></div>
 			<p><a id="sign-out" href="#">Sign out</a></p>
 		{{else}}
 			<div id="registerLoginForm">
@@ -72,6 +59,11 @@
 				<input id="login" type="submit" value="Login" />
 			</div>
 		{{/if}}
+	</script>
+
+
+	<script id="clue-template" type="text/x-handlebars-template">
+		<div class="{{parity}}">{{clue}} {{each checkboxes}}<input type="checkbox" name="{{checkboxname}}">{{/each}}</div>
 	</script>
 
 
